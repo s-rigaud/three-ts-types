@@ -1,0 +1,73 @@
+{
+    "$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json",
+    "version": "0.2",
+    "dictionaryDefinitions": [
+        {
+            "name": "project-words",
+            "path": "./project-words.txt",
+            "addWords": true
+        }
+    ],
+    "dictionaries": [
+        "project-words"
+    ],
+    "ignorePaths": [
+        "cspell.json",
+        "errors.txt",
+        "node_modules",
+        "/project-words.txt",
+        "build",
+        "docs/api/ar/*",
+        "docs/api/fr/*",
+        "docs/api/it/*",
+        "docs/api/pt-br/*",
+        "docs/api/ko/*",
+        "docs/api/zh/*",
+        "docs/examples/ko/*",
+        "docs/examples/zh/*",
+        "docs/list.json",
+        "**.CUBE",
+        "docs/manual/ar/*",
+        "docs/manual/fr/*",
+        "docs/manual/it/*",
+        "docs/manual/ja/*",
+        "docs/manual/ko/*",
+        "docs/manual/pt-br/*",
+        "docs/manual/ru/*",
+        "docs/manual/zh/*",
+        "docs/prettify/*",
+        "docs_new/*",  // generated from source code
+        "examples/fonts/*",
+        "editor/js/libs/*",
+        "editor/js/Strings.js",
+        "examples/jsm/libs/*",
+        "examples/models/*",
+        "examples/textures/*",
+        "manual/3rdparty/*",
+        "manual/fr/*",
+        "manual/ja/*",
+        "manual/ko/*",
+        "manual/examples/resources/*",
+        "manual/list.json",
+        "manual/resources/*",
+        "manual/ru/*",
+        "manual/zh/*",
+        "playground/libs/*",
+        "utils/docs/template/*",
+        "test/treeshake/stats.html",
+        // Other files
+        "tsconfig.tsbuildinfo",
+        "TODOS.md",
+        "type-errors.txt",
+        "spelling-errors.txt",
+    ]
+}
+
+// Listing files
+// cspell "**" --no-issues
+
+// Saving errors
+// cspell "**" > "spelling-errors.txt"
+
+// Ensuring no issues are found
+// cspell --words-only --unique "**" >> errors.txt
