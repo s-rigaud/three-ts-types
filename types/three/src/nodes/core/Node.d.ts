@@ -75,6 +75,7 @@ declare class Node extends EventDispatcher<{
     _cacheKey: number | null;
     _cacheKeyVersion: number;
     global: boolean;
+    parents: boolean;
     readonly isNode: true;
     readonly id: number;
     self?: this;
@@ -139,13 +140,6 @@ declare class Node extends EventDispatcher<{
      */
     onReference(callback: (this: this, frame: NodeBuilder | NodeFrame) => unknown): this;
     /**
-     * The `this` reference might point to a Proxy so this method can be used
-     * to get the reference to the actual node instance.
-     *
-     * @return {Node} A reference to the node.
-     */
-    getSelf(): this;
-    /**
      * Nodes might refer to other objects like materials. This method allows to dynamically update the reference
      * to such objects based on a given state (e.g. the current node frame or builder).
      *
@@ -156,7 +150,7 @@ declare class Node extends EventDispatcher<{
     /**
      * By default this method returns the value of the {@link Node#global} flag. This method
      * can be overwritten in derived classes if an analytical way is required to determine the
-     * global status.
+     * global cache referring to the current shader-stage.
      *
      * @param {NodeBuilder} builder - The current node builder.
      * @return {boolean} Whether this node is global or not.
@@ -267,9 +261,16 @@ declare class Node extends EventDispatcher<{
      */
     getShared(builder: NodeBuilder): Node;
     /**
+     * Returns the number of elements in the node array.
+     *
+     * @param {NodeBuilder} builder - The current node builder.
+     * @return {?number} The number of elements in the node array.
+     */
+    getArrayCount(builder: NodeBuilder): number | null;
+    /**
      * Represents the setup stage which is the first step of the build process, see {@link Node#build} method.
-     * This method is often overwritten in derived modules to prepare the node which is used as the output/result.
-     * The output node must be returned in the `return` statement.
+     * This method is often overwritten in derived modules to prepare the node which is used as a node's output/result.
+     * If an output node is prepared, then it must be returned in the `return` statement of the derived module's setup function.
      *
      * @param {NodeBuilder} builder - The current node builder.
      * @return {?Node} The output node.
@@ -280,14 +281,15 @@ declare class Node extends EventDispatcher<{
      * This stage analyzes the node hierarchy and ensures descendent nodes are built.
      *
      * @param {NodeBuilder} builder - The current node builder.
+     * @param {?Node} output - The target output node.
      */
-    analyze(builder: NodeBuilder): void;
+    analyze(builder: NodeBuilder, output?: Node | null): void;
     /**
      * Represents the generate stage which is the third step of the build process, see {@link Node#build} method.
      * This state builds the output node and returns the resulting shader string.
      *
      * @param {NodeBuilder} builder - The current node builder.
-     * @param {?string} output - Can be used to define the output type.
+     * @param {?string} [output] - Can be used to define the output type.
      * @return {?string} The generated shader string.
      */
     generate(builder: NodeBuilder, output?: string | null): string | null | undefined;
@@ -319,18 +321,20 @@ declare class Node extends EventDispatcher<{
      */
     update(frame: NodeFrame): void;
     /**
-     * This method performs the build of a node. The behavior of this method as well as its return value depend
-     * on the current build stage (setup, analyze or generate).
+     * This method performs the build of a node. The behavior and return value depend on the current build stage:
+     * - **setup**: Prepares the node and its children for the build process. This process can also create new nodes. Returns the node itself or a variant.
+     * - **analyze**: Analyzes the node hierarchy for optimizations in the code generation stage. Returns `null`.
+     * - **generate**: Generates the shader code for the node. Returns the generated shader string.
      *
      * @param {NodeBuilder} builder - The current node builder.
-     * @param {?string} output - Can be used to define the output type.
-     * @return {?string} When this method is executed in the setup or analyze stage, `null` is returned. In the generate stage, the generated shader string.
+     * @param {?(string|Node)} [output=null] - Can be used to define the output type.
+     * @return {?(Node|string)} The result of the build process, depending on the build stage.
      */
-    build(builder: NodeBuilder, output?: string | null): string | null;
+    build(builder: NodeBuilder, output?: string | Node | null): Node | string | null;
     /**
      * Returns the child nodes as a JSON object.
      *
-     * @return {Array<Object>} An iterable list of serialized child objects as JSON.
+     * @return {Generator<Object>} An iterable list of serialized child objects as JSON.
      */
     getSerializeChildren(): Generator<import("./NodeUtils.js").NodeChild, void, unknown>;
     /**
